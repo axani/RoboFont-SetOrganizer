@@ -1,5 +1,5 @@
 from vanilla import *
-from mojo.UI import SmartSet, getSmartSets, setSmartSets, addSmartSet
+from mojo.UI import SmartSet, getSmartSets, setSmartSets, addSmartSet, removeSmartSet
 
 # My standard sets
 # ? - Koennte ausgelagert werden
@@ -29,7 +29,8 @@ class setOrganizer():
     def __init__(self):
         self.w = Window((400,400), 'checkBoxWindow')
         #self.w.checkBox1 = CheckBox((10, 10, -10, -10), 'Label', callback=self.checkBoxCallback, value=True)
-        
+        print getSmartSets()
+
         # Create a checkbox for every standard set
         i = 0
         for key in standardSets_dict:
@@ -42,8 +43,6 @@ class setOrganizer():
             
             # Link checkbox with Set
             checkboxSetLink_dict[checkboxObject] = setID
-            print checkboxSetLink_dict
-
 
             i += 1
 
@@ -52,15 +51,19 @@ class setOrganizer():
     def checkBoxCallback(self, sender):
         
         # Get linked set of checkbox
-        print checkboxSetLink_dict[sender]
+        linkedSetName = checkboxSetLink_dict[sender]
+        linkedSet = standardSets_dict[linkedSetName]
+        print getSmartSets()
 
         if sender.get() is 1:
-            #addSmartSet(self)
+            addSmartSet(linkedSet)
             #print sender.name()
             print 'Aktivieren'
+            print getSmartSets()
 
         else:
             print 'Deaktivieren'
+            print getSmartSets()
         
         print sender.get(), sender.getTitle()
 
