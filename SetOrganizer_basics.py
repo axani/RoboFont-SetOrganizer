@@ -7,14 +7,16 @@ from mojo.UI import SmartSet, getSmartSets, setSmartSets, addSmartSet, removeSma
 standardSets = []
 standardSets_dict = {}
 
-set_lowercase = SmartSet()
-set_lowercase.name = 'Lowercase'
-set_lowercase.query = 'Name MATCHES "[a-z]"'
+set_ipa = SmartSet()
+set_ipa.name = 'Ipanema'
+set_ipa.query = 'Name MATCHES "[a-z]"'
 
-standardSets_dict['set_lowercase'] = set_lowercase
+standardSets_dict['set_ipa'] = set_ipa
 
-standardSets.append(set_lowercase)
+standardSets.append(set_ipa)
 #standardSets.append('hi')
+
+activeSets = []
 
 checkboxSetLink_dict = {}
 
@@ -57,13 +59,23 @@ class setOrganizer():
 
         if sender.get() is 1:
             addSmartSet(linkedSet)
+            activeSets.append(linkedSet)
             #print sender.name()
             print 'Aktivieren'
             print getSmartSets()
 
         else:
-            print 'Deaktivieren'
-            print getSmartSets()
+            newSmartSetList = []
+
+            print 'activeSets', activeSets
+            for set in activeSets:
+                if set is linkedSet:
+                    print linkedSet, 'entfernt!'
+                else:
+                    newSmartSetList.append(set)
+                    print set, 'noch da'
+
+            setSmartSets(newSmartSetList)
         
         print sender.get(), sender.getTitle()
 
