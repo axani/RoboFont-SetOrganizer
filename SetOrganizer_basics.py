@@ -1,37 +1,66 @@
 from vanilla import *
 from mojo.UI import SmartSet, getSmartSets, setSmartSets, addSmartSet, removeSmartSet
 
-# My standard sets
-# ? - Koennte ausgelagert werden
 
+# Lists and dictionaries to use
 standardSets = []
 standardSets_dict = {}
-
-set_ipa = SmartSet()
-set_ipa.name = 'Ipanema'
-set_ipa.query = 'Name MATCHES "[a-z]"'
-
-standardSets_dict['set_ipa'] = set_ipa
-
-standardSets.append(set_ipa)
-#standardSets.append('hi')
-
 activeSets = []
-
+setsToDeactivate = []
+setsToSave = []
 checkboxSetLink_dict = {}
 
-def pickUpExistingSets():
+
+# smartSet Functions
+def declareAsStandard(set):
+    standardSets_dict[str(set)] = set
+    standardSets.append(set)
+
+def pickUpActiveSets():
+    activeSets[:] = []
+    print 'picking up active sets'
     for set in getSmartSets():
-        # Deal with it
-        print set.name
-        print set.query
+        activeSets.append(set)
+        print set.name, 'is active!'
+
+def activateSet(thisSet):
+    addSmartSet(thisSet)
+    activeSets.append(thisSet)
+    print thisSet, ' ++ now active!'
+    print 'Active sets:', activeSets
+
+def deactivateSet(thisSet):
+    # Loop through all current active sets
+    for set in activeSets:
+        # Check every active set, if it is the one to deactivate
+        if set is thisSet:
+            setsToDeactivate.append(set)
+        else:
+            # if not put it on the save list
+            setsToSave.append(set)
+    # After the loop is finished, clear the list of active sets
+    activeSets[:] = []
+    # Put the saved sets in it
+    activeSets.extend(setsToSave)
+    setSmartSets(setsToSave)
+    print setsToDeactivate, '-- now inactive!'
+    print 'Active sets:', activeSets
+
+# My standard sets
+set_lowercase = SmartSet({'smartSetName': 'Lowercase', 'query': 'Name MATCHES "[a-z]"'})
+set_uppercase = SmartSet({'smartSetName': 'Uppercase', 'query': 'Name MATCHES "[A-Z]"'})
+
+declareAsStandard(set_lowercase)
+declareAsStandard(set_uppercase)
+
+
 
 class setOrganizer():
 
     def __init__(self):
-        self.w = Window((400,400), 'checkBoxWindow')
-        #self.w.checkBox1 = CheckBox((10, 10, -10, -10), 'Label', callback=self.checkBoxCallback, value=True)
-        print getSmartSets()
+
+        # Create window
+        self.w = Window((400,400), 'Active/Deactivate your SmartSets')
 
         # Create a checkbox for every standard set
         i = 0
@@ -48,36 +77,22 @@ class setOrganizer():
 
             i += 1
 
+        # Open window
         self.w.open()
 
     def checkBoxCallback(self, sender):
-        
+ 
         # Get linked set of checkbox
         linkedSetName = checkboxSetLink_dict[sender]
         linkedSet = standardSets_dict[linkedSetName]
-        print getSmartSets()
+
+        setsToDeactivate[:] = []
+        setsToSave[:] = []
 
         if sender.get() is 1:
-            addSmartSet(linkedSet)
-            activeSets.append(linkedSet)
-            #print sender.name()
-            print 'Aktivieren'
-            print getSmartSets()
+            activateSet(linkedSet)
 
         else:
-            newSmartSetList = []
-
-            print 'activeSets', activeSets
-            for set in activeSets:
-                if set is linkedSet:
-                    print linkedSet, 'entfernt!'
-                else:
-                    newSmartSetList.append(set)
-                    print set, 'noch da'
-
-            setSmartSets(newSmartSetList)
+            deactivateSet(linkedSet)
         
-        print sender.get(), sender.getTitle()
-
-#pickUpExistingSets()
 setOrganizer()
