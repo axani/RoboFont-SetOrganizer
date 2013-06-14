@@ -26,10 +26,14 @@ def pickUpActiveSets():
 def activateSet(thisSet):
     addSmartSet(thisSet)
     activeSets.append(thisSet)
-    print thisSet, ' ++ now active!'
-    print 'Active sets:', activeSets
+    #print thisSet, ' ++ now active!'
+    #print 'Active sets:', activeSets
 
 def deactivateSet(thisSet):
+    
+    setsToDeactivate[:] = []
+    setsToSave[:] = []
+
     # Loop through all current active sets
     for set in activeSets:
         # Check every active set, if it is the one to deactivate
@@ -43,8 +47,8 @@ def deactivateSet(thisSet):
     # Put the saved sets in it
     activeSets.extend(setsToSave)
     setSmartSets(setsToSave)
-    print setsToDeactivate, '-- now inactive!'
-    print 'Active sets:', activeSets
+    #print setsToDeactivate, '-- now inactive!'
+    #print 'Active sets:', activeSets
 
 # My standard sets
 set_lowercase = SmartSet({'smartSetName': 'Lowercase', 'query': 'Name MATCHES "[a-z]"'})
@@ -52,8 +56,6 @@ set_uppercase = SmartSet({'smartSetName': 'Uppercase', 'query': 'Name MATCHES "[
 
 declareAsStandard(set_lowercase)
 declareAsStandard(set_uppercase)
-
-
 
 class setOrganizer():
 
@@ -85,9 +87,6 @@ class setOrganizer():
         # Get linked set of checkbox
         linkedSetName = checkboxSetLink_dict[sender]
         linkedSet = standardSets_dict[linkedSetName]
-
-        setsToDeactivate[:] = []
-        setsToSave[:] = []
 
         if sender.get() is 1:
             activateSet(linkedSet)
