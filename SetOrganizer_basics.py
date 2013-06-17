@@ -8,8 +8,6 @@ import json
 allSetData = {}
 allSmartSets_obj = []
 allSmartSets_dict = {}
-standardSets = []
-standardSets_dict = {}
 activeSets = []
 setsToDeactivate = []
 setsToSave = []
@@ -53,13 +51,8 @@ def generateSmartSets(setDict):
     print 'allSmartSets_dict: ', allSmartSets_dict
     print 'allSmartSets_obj: ', allSmartSets_obj
 
-def declareAsStandard(set):
-    standardSets_dict[str(set)] = set
-    standardSets.append(set)
-    print 'standardSets_dict: ', standardSets_dict
-    print 'standardSets: ', standardSets
-
 def pickUpActiveSets():
+    # ! - Currently not in use
     activeSets[:] = []
     print 'picking up active sets'
     for set in getSmartSets():
@@ -88,14 +81,6 @@ def deactivateSet(thisSet):
     setSmartSets(setsToSave)
     print setsToDeactivate, '-- now inactive!'
     print 'Active sets:', activeSets
-
-# My standard sets
-set_lowercase = SmartSet({'smartSetName': 'Lowercase', 'query': 'Name MATCHES "[a-z]"'})
-set_uppercase = SmartSet({'smartSetName': 'Uppercase', 'query': 'Name MATCHES "[A-Z]"'})
-
-declareAsStandard(set_lowercase)
-declareAsStandard(set_uppercase)
-
 
 
 class setOrganizer():
@@ -137,6 +122,8 @@ class setOrganizer():
 
         else:
             deactivateSet(linkedSet)
+
+# Run Set Organizer
 
 allSmartSets = createAllSetDataFromFiles()
 generateSmartSets(allSmartSets)        
