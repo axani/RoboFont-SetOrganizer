@@ -1,8 +1,11 @@
 from vanilla import *
 from mojo.UI import SmartSet, getSmartSets, setSmartSets, addSmartSet, removeSmartSet
+import os
+import json
 
 
 # Lists and dictionaries to use
+allSetData = {}
 standardSets = []
 standardSets_dict = {}
 activeSets = []
@@ -12,6 +15,34 @@ checkboxSetLink_dict = {}
 
 
 # smartSet Functions
+
+def getFilelist():
+    mySetFileNames = []
+    folder = 'mySets'
+    readmeFile = '00-README.txt'
+    for file in os.listdir(folder):
+        if file.endswith('.txt') and file != readmeFile:
+           mySetFileNames.append(file)
+
+    # print mySetFileNames
+    return mySetFileNames 
+
+def createAllSetDataFromFiles():
+    setNames = getFilelist()
+
+    for fileName in setNames:
+        file = open('mySets/' + fileName)
+        
+        fileData = json.load(file)
+        fileName = fileName.replace('.txt', '')
+        allSetData[fileName] = fileData
+        
+        file.close
+
+    print allSetData
+
+
+
 def declareAsStandard(set):
     standardSets_dict[str(set)] = set
     standardSets.append(set)
@@ -94,5 +125,6 @@ class setOrganizer():
 
         else:
             deactivateSet(linkedSet)
-        
+
+createAllSetDataFromFiles()        
 setOrganizer()
