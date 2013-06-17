@@ -6,6 +6,8 @@ import json
 
 # Lists and dictionaries to use
 allSetData = {}
+allSmartSets_obj = []
+allSmartSets_dict = {}
 standardSets = []
 standardSets_dict = {}
 activeSets = []
@@ -39,13 +41,23 @@ def createAllSetDataFromFiles():
         
         file.close
 
-    print allSetData
+    print 'allSetData: ', allSetData
+    return allSetData
 
+def generateSmartSets(setDict):
+    for set in setDict:
+        newSet = SmartSet(setDict[set])
+        allSmartSets_dict[str(newSet)] = newSet
+        allSmartSets_obj.append(newSet)
 
+    print 'allSmartSets_dict: ', allSmartSets_dict
+    print 'allSmartSets_obj: ', allSmartSets_obj
 
 def declareAsStandard(set):
     standardSets_dict[str(set)] = set
     standardSets.append(set)
+    print 'standardSets_dict: ', standardSets_dict
+    print 'standardSets: ', standardSets
 
 def pickUpActiveSets():
     activeSets[:] = []
@@ -95,9 +107,9 @@ class setOrganizer():
 
         # Create a checkbox for every standard set
         i = 0
-        for key in standardSets_dict:
+        for key in allSmartSets_dict:
             setID = key
-            set = standardSets_dict[key]
+            set = allSmartSets_dict[key]
 
             # Create checkbox
             checkboxObject = CheckBox((10, 10+30*i, -10, -10), " %s" % set.name, callback=self.checkBoxCallback, value=False)
@@ -115,7 +127,7 @@ class setOrganizer():
  
         # Get linked set of checkbox
         linkedSetName = checkboxSetLink_dict[sender]
-        linkedSet = standardSets_dict[linkedSetName]
+        linkedSet = allSmartSets_dict[linkedSetName]
 
         setsToDeactivate[:] = []
         setsToSave[:] = []
@@ -126,5 +138,6 @@ class setOrganizer():
         else:
             deactivateSet(linkedSet)
 
-createAllSetDataFromFiles()        
+allSmartSets = createAllSetDataFromFiles()
+generateSmartSets(allSmartSets)        
 setOrganizer()
