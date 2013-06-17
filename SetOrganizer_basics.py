@@ -13,43 +13,10 @@ setsToDeactivate = []
 setsToSave = []
 checkboxSetLink_dict = {}
 
+allExternalSets_dict = {}
+
 
 # smartSet Functions
-
-def getFilelist():
-    mySetFileNames = []
-    folder = 'mySets'
-    readmeFile = '00-README.txt'
-    for file in os.listdir(folder):
-        if file.endswith('.txt') and file != readmeFile:
-           mySetFileNames.append(file)
-
-    # print mySetFileNames
-    return mySetFileNames 
-
-def createAllSetDataFromFiles():
-    setNames = getFilelist()
-
-    for fileName in setNames:
-        file = open('mySets/' + fileName)
-        
-        fileData = json.load(file)
-        fileName = fileName.replace('.txt', '')
-        allSetData[fileName] = fileData
-        
-        file.close
-
-    print 'allSetData: ', allSetData
-    return allSetData
-
-def generateSmartSets(setDict):
-    for set in setDict:
-        newSet = SmartSet(setDict[set])
-        allSmartSets_dict[str(newSet)] = newSet
-        allSmartSets_obj.append(newSet)
-
-    print 'allSmartSets_dict: ', allSmartSets_dict
-    print 'allSmartSets_obj: ', allSmartSets_obj
 
 def pickUpActiveSets():
     # ! - Currently not in use
@@ -82,6 +49,75 @@ def deactivateSet(thisSet):
     print setsToDeactivate, '-- now inactive!'
     print 'Active sets:', activeSets
 
+class loadExternalSets():
+    # Load all sets from external folder
+
+    def __init__(self):
+        externalFolder = 'SmartSets'
+        
+        
+        for filename in self.getSetFilenameList(externalFolder):
+            thisSetData = self.getSetData(externalFolder, filename)
+            thisSmartSet = SmartSet(thisSetData)
+            allExternalSets_dict[filename] = thisSmartSet
+
+        # print allExternalSets_dict
+
+    def getSetFilenameList(self, folder):
+        readmeFile = '00-README.txt'
+        mySetFilenames = []
+        for file in os.listdir(folder):
+            if file.endswith('.txt') and file != readmeFile:
+                mySetFilenames.append(file)
+
+        return mySetFilenames
+
+    def getSetData(self, folder, filename):
+        file = open(folder + '/' + filename)
+        fileData = json.load(file)
+        file.close
+
+        print 'fileData: ', fileData
+        return fileData
+
+
+
+class backupSetData():
+    # Deals with the problem that a smartSet is lost:
+    # When creating a smartSet in RoboFont internally and deactivating it with the Script. After a restart this particular smartSet is lost.
+    # But thanks to this method it gets saved in a backup-folder
+    # If you want to restore it you have to put it in the main sets-folder.
+
+    def __init__(self):
+
+        # Get active Sets
+        activeSets = []
+        for set in getSmartSets():
+            activeSets.append(set)
+
+        internSets_active, externSets_active = self.compareWithExternSets()
+        
+        for set in internSets_active:
+            self.backupInternSets(set)
+
+    def compareWithExternSets(self):
+        print 'Coming soon …'
+        return 'Interne Sets, die aktiv sind', 'externe Sets, die aktiv sind'
+
+    def backupInternSets(self, set):
+        print set
+        # folder = 'SmartSets_Backup'
+        # timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M_')
+        # filename = timestamp + set.name + '.txt'
+        # file = open(folder + '/' + filename, 'w+')
+        
+        # nameString = '"smartSetName": "' + str(set.name) + '"'
+        # queryString = '"query": "' +  str(set.query) + '"'
+        # dataString = '{\n' +  nameString + '\n' + queryString + '\n}'
+
+        # file.write(dataString)
+        # file.close()
+
 
 class setOrganizer():
 
@@ -92,9 +128,9 @@ class setOrganizer():
 
         # Create a checkbox for every standard set
         i = 0
-        for key in allSmartSets_dict:
+        for key in allExternalSets_dict:
             setID = key
-            set = allSmartSets_dict[key]
+            set = allExternalSets_dict[key]
 
             # Create checkbox
             checkboxObject = CheckBox((10, 10+30*i, -10, -10), " %s" % set.name, callback=self.checkBoxCallback, value=False)
@@ -112,7 +148,7 @@ class setOrganizer():
  
         # Get linked set of checkbox
         linkedSetName = checkboxSetLink_dict[sender]
-        linkedSet = allSmartSets_dict[linkedSetName]
+        linkedSet = allExternalSets_dict[linkedSetName]
 
         setsToDeactivate[:] = []
         setsToSave[:] = []
@@ -125,6 +161,7 @@ class setOrganizer():
 
 # Run Set Organizer
 
-allSmartSets = createAllSetDataFromFiles()
-generateSmartSets(allSmartSets)        
+loadExternalSets()
+
+#backupSetData()        
 setOrganizer()
