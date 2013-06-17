@@ -1,10 +1,13 @@
 from vanilla import *
 from mojo.UI import SmartSet, getSmartSets, setSmartSets, addSmartSet, removeSmartSet
+import os
+import json
 
 
 # Lists and dictionaries to use
-standardSets = []
-standardSets_dict = {}
+allSetData = {}
+allSmartSets_obj = []
+allSmartSets_dict = {}
 activeSets = []
 setsToDeactivate = []
 setsToSave = []
@@ -12,11 +15,44 @@ checkboxSetLink_dict = {}
 
 
 # smartSet Functions
-def declareAsStandard(set):
-    standardSets_dict[str(set)] = set
-    standardSets.append(set)
+
+def getFilelist():
+    mySetFileNames = []
+    folder = 'mySets'
+    readmeFile = '00-README.txt'
+    for file in os.listdir(folder):
+        if file.endswith('.txt') and file != readmeFile:
+           mySetFileNames.append(file)
+
+    # print mySetFileNames
+    return mySetFileNames 
+
+def createAllSetDataFromFiles():
+    setNames = getFilelist()
+
+    for fileName in setNames:
+        file = open('mySets/' + fileName)
+        
+        fileData = json.load(file)
+        fileName = fileName.replace('.txt', '')
+        allSetData[fileName] = fileData
+        
+        file.close
+
+    print 'allSetData: ', allSetData
+    return allSetData
+
+def generateSmartSets(setDict):
+    for set in setDict:
+        newSet = SmartSet(setDict[set])
+        allSmartSets_dict[str(newSet)] = newSet
+        allSmartSets_obj.append(newSet)
+
+    print 'allSmartSets_dict: ', allSmartSets_dict
+    print 'allSmartSets_obj: ', allSmartSets_obj
 
 def pickUpActiveSets():
+    # ! - Currently not in use
     activeSets[:] = []
     print 'picking up active sets'
     for set in getSmartSets():
@@ -26,14 +62,10 @@ def pickUpActiveSets():
 def activateSet(thisSet):
     addSmartSet(thisSet)
     activeSets.append(thisSet)
-    #print thisSet, ' ++ now active!'
-    #print 'Active sets:', activeSets
+    print thisSet, ' ++ now active!'
+    print 'Active sets:', activeSets
 
 def deactivateSet(thisSet):
-    
-    setsToDeactivate[:] = []
-    setsToSave[:] = []
-
     # Loop through all current active sets
     for set in activeSets:
         # Check every active set, if it is the one to deactivate
@@ -47,15 +79,9 @@ def deactivateSet(thisSet):
     # Put the saved sets in it
     activeSets.extend(setsToSave)
     setSmartSets(setsToSave)
-    #print setsToDeactivate, '-- now inactive!'
-    #print 'Active sets:', activeSets
+    print setsToDeactivate, '-- now inactive!'
+    print 'Active sets:', activeSets
 
-# My standard sets
-set_lowercase = SmartSet({'smartSetName': 'Lowercase', 'query': 'Name MATCHES "[a-z]"'})
-set_uppercase = SmartSet({'smartSetName': 'Uppercase', 'query': 'Name MATCHES "[A-Z]"'})
-
-declareAsStandard(set_lowercase)
-declareAsStandard(set_uppercase)
 
 class setOrganizer():
 
@@ -66,9 +92,9 @@ class setOrganizer():
 
         # Create a checkbox for every standard set
         i = 0
-        for key in standardSets_dict:
+        for key in allSmartSets_dict:
             setID = key
-            set = standardSets_dict[key]
+            set = allSmartSets_dict[key]
 
             # Create checkbox
             checkboxObject = CheckBox((10, 10+30*i, -10, -10), " %s" % set.name, callback=self.checkBoxCallback, value=False)
@@ -86,12 +112,19 @@ class setOrganizer():
  
         # Get linked set of checkbox
         linkedSetName = checkboxSetLink_dict[sender]
-        linkedSet = standardSets_dict[linkedSetName]
+        linkedSet = allSmartSets_dict[linkedSetName]
+
+        setsToDeactivate[:] = []
+        setsToSave[:] = []
 
         if sender.get() is 1:
             activateSet(linkedSet)
 
         else:
             deactivateSet(linkedSet)
-        
+
+# Run Set Organizer
+
+allSmartSets = createAllSetDataFromFiles()
+generateSmartSets(allSmartSets)        
 setOrganizer()
