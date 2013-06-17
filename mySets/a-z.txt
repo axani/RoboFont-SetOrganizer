@@ -1,0 +1,4 @@
+{
+"smartSetName": "Numbers",
+"query": "Name MATCHES '[a-z]'"
+}
