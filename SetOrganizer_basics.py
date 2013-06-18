@@ -132,13 +132,15 @@ def saveThisSet(set):
     file.close()
 
 def isExternal(set):
-    print 'set:', set
+    print 'Ist dieses Set extern?   ', set
+    print 'Liste der externen Sets:   ', allExternalSets_dict
     for externalSetID in allExternalSets_dict:
+        print 'Set mit dem verglichen wird:', externalSetID
         thisSet = allExternalSets_dict[externalSetID]
+        print 'Check if is external: Vergleiche', set.name, thisSet.name, 'and', set.query, thisSet.query
+        
         if set.name == thisSet.name and set.query == thisSet.query:
             return externalSetID
-        else:
-            return False
 
 class setOrganizer():
 
@@ -151,7 +153,6 @@ class setOrganizer():
             for set in activeSetsNow:
                 if isExternal(set):
                     activeExternalSets.append(isExternal(set))
-                    print 'active external set: ', set
                 else:
                     print set, 'saved!'
                     saveThisSet(set)
@@ -163,7 +164,6 @@ class setOrganizer():
         # Create a checkbox for every standard set
         i = 0
         for key in allExternalSets_dict:
-            print 'allExternalSets_dict key', key
             setID = key
             set = allExternalSets_dict[key]
 
@@ -184,7 +184,6 @@ class setOrganizer():
 
         # Create checkbox for every internal active set
         for key in activeSetsNow:
-            print 'activeSetsNow key:', key
             setID = str(key)
             set = key
 
@@ -217,7 +216,6 @@ class setOrganizer():
 
         else:
             deactivateSet(linkedSet)
-            print 'deaktivieren: ', linkedSet, type(linkedSet)
 
     def checkBoxCallback_internal(self, sender):
 
@@ -232,7 +230,6 @@ class setOrganizer():
 
         else:
             deactivateSet(linkedSet)
-            print 'deaktivieren internal: ', linkedSet, type(linkedSet)
 
 # Run Set Organizer
 
