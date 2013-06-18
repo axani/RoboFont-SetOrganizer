@@ -2,74 +2,38 @@ from vanilla import *
 from mojo.UI import SmartSet, getSmartSets, setSmartSets, addSmartSet, removeSmartSet
 import os
 import json
+import time
+import datetime
 
 
 # Lists and dictionaries to use
-allSetData = {}
-allSmartSets_obj = []
-allSmartSets_dict = {}
 activeSets = []
 setsToDeactivate = []
 setsToSave = []
 checkboxSetLink_dict = {}
 
+allExternalSets_dict = {}
+activeExternalSets = []
 
 # smartSet Functions
 
-def getFilelist():
-    mySetFileNames = []
-    folder = 'mySets'
-    readmeFile = '00-README.txt'
-    for file in os.listdir(folder):
-        if file.endswith('.txt') and file != readmeFile:
-           mySetFileNames.append(file)
-
-    # print mySetFileNames
-    return mySetFileNames 
-
-def createAllSetDataFromFiles():
-    setNames = getFilelist()
-
-    for fileName in setNames:
-        file = open('mySets/' + fileName)
-        
-        fileData = json.load(file)
-        fileName = fileName.replace('.txt', '')
-        allSetData[fileName] = fileData
-        
-        file.close
-
-    print 'allSetData: ', allSetData
-    return allSetData
-
-def generateSmartSets(setDict):
-    for set in setDict:
-        newSet = SmartSet(setDict[set])
-        allSmartSets_dict[str(newSet)] = newSet
-        allSmartSets_obj.append(newSet)
-
-    print 'allSmartSets_dict: ', allSmartSets_dict
-    print 'allSmartSets_obj: ', allSmartSets_obj
-
-def pickUpActiveSets():
-    # ! - Currently not in use
+def updateActiveSetList():
     activeSets[:] = []
-    print 'picking up active sets'
     for set in getSmartSets():
         activeSets.append(set)
-        print set.name, 'is active!'
+
+    # print 'ActiveSets updated. Current active sets are:', activeSets
 
 def activateSet(thisSet):
     addSmartSet(thisSet)
     activeSets.append(thisSet)
-    print thisSet, ' ++ now active!'
-    print 'Active sets:', activeSets
+    # print thisSet, 'was actived!'
 
 def deactivateSet(thisSet):
     # Loop through all current active sets
     for set in activeSets:
         # Check every active set, if it is the one to deactivate
-        if set is thisSet:
+        if set.name == thisSet.name and set.query == thisSet.query:
             setsToDeactivate.append(set)
         else:
             # if not put it on the save list
@@ -79,41 +43,133 @@ def deactivateSet(thisSet):
     # Put the saved sets in it
     activeSets.extend(setsToSave)
     setSmartSets(setsToSave)
-    print setsToDeactivate, '-- now inactive!'
-    print 'Active sets:', activeSets
+    # print setsToDeactivate, 'was deactivated!'
 
+class loadExternalSets():
+
+    def __init__(self):
+        externalFolder = 'SmartSets'
+            
+        for filename in self.getSetFilenameList(externalFolder):
+            thisSetData = self.getSetData(externalFolder, filename)
+            thisSmartSet = SmartSet(thisSetData)
+            allExternalSets_dict[filename] = thisSmartSet
+
+    def getSetFilenameList(self, folder):
+        readmeFile = '00-README.txt'
+        mySetFilenames = []
+        for file in os.listdir(folder):
+            if file.endswith('.txt') and file != readmeFile:
+                mySetFilenames.append(file)
+
+        return mySetFilenames
+
+    def getSetData(self, folder, filename):
+        file = open(folder + '/' + filename)
+        fileData = json.load(file)
+        file.close
+
+        return fileData
+
+def saveThisSet(set):
+    # Backups the set in a folder where it can be copied to the regular SmartSet folder
+    folder = 'SmartSets_Backup'
+    timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H-%M_')
+    filename = timestamp + set.name + '.txt'
+    file = open(folder + '/' + filename, 'w+')
+    
+    nameString = '"smartSetName": "' + str(set.name) + '"'
+    queryString = '"query": "' +  str(set.query).replace('"', "'") + '"'
+    dataString = '{\n' +  nameString + '\n' + queryString + '\n}'
+
+    file.write(dataString)
+    file.close()
+
+def isExternal(set):
+    for externalSetID in allExternalSets_dict:
+        thisSet = allExternalSets_dict[externalSetID]        
+        if set.name == thisSet.name and set.query == thisSet.query:
+            return externalSetID
 
 class setOrganizer():
 
     def __init__(self):
 
+        updateActiveSetList()
+        activeSetsNow = activeSets
+        
+        if activeSetsNow:
+            for set in activeSetsNow:
+                if isExternal(set):
+                    activeExternalSets.append(isExternal(set))
+                else:
+                    # Deals with the problem that intern created sets disappear after the restart of the script.
+                    saveThisSet(set)
+
+
         # Create window
         self.w = Window((400,400), 'Active/Deactivate your SmartSets')
+        
 
-        # Create a checkbox for every standard set
-        i = 0
-        for key in allSmartSets_dict:
-            setID = key
-            set = allSmartSets_dict[key]
-
-            # Create checkbox
-            checkboxObject = CheckBox((10, 10+30*i, -10, -10), " %s" % set.name, callback=self.checkBoxCallback, value=False)
-            setattr(self.w, setID, checkboxObject)
-            
-            # Link checkbox with Set
-            checkboxSetLink_dict[checkboxObject] = setID
-
-            i += 1
+        # Create checkboxes
+        currentRow = 0
+        for item in allExternalSets_dict:
+            currentRow = self.createCheckbox(item, allExternalSets_dict, currentRow)
+       
+        for item in activeSetsNow:
+            currentRow = self.createCheckbox(item, activeSetsNow, currentRow)
 
         # Open window
         self.w.open()
 
-    def checkBoxCallback(self, sender):
- 
-        # Get linked set of checkbox
-        linkedSetName = checkboxSetLink_dict[sender]
-        linkedSet = allSmartSets_dict[linkedSetName]
+    def createCheckbox(self, key, dataToLoop, row):
+            
+        # Check if list or dictionary
+        if type(dataToLoop) is dict:
+            set = dataToLoop[key]
+            setID = key
+            notSureIfActive = True
+        
+        else:
+            # ! - ActiveSets/ActiveSetsnow sollte ebenfalls ein dictionary wie die anderen SmartSetListen sein
+            set = key
+            setID = str(key)
+            notSureIfActive = False
 
+        # Set checkBoxValue and checkBoxType
+        if isExternal(set) and notSureIfActive:
+            if setID in activeExternalSets:
+                checkBoxValue = True
+            
+            else:
+                checkBoxValue = False
+            
+            checkBoxLinkDestination = setID
+            callbackDestination = self.checkBoxCallback_external
+            permissionToBuild = True
+        
+        elif isExternal(set):
+            permissionToBuild = False
+            return row
+
+        else:
+            checkBoxValue = True
+            checkBoxLinkDestination = set
+            callbackDestination = self.checkBoxCallback_internal
+            permissionToBuild = True
+        
+        if permissionToBuild:
+            checkboxObject = CheckBox((10, 10+30*row, -10, -10), " %s" % set.name, callback=callbackDestination, value = checkBoxValue)
+            setattr(self.w, setID, checkboxObject)
+        
+            # Link checkbox with Set
+            checkboxSetLink_dict[checkboxObject] = checkBoxLinkDestination
+
+            row = row + 1 
+            return row
+
+
+    def handleCallback(self, sender, linkedSet):
         setsToDeactivate[:] = []
         setsToSave[:] = []
 
@@ -123,8 +179,22 @@ class setOrganizer():
         else:
             deactivateSet(linkedSet)
 
+
+    def checkBoxCallback_external(self, sender):
+        # Get linked set of checkbox
+        linkedSetName = checkboxSetLink_dict[sender]
+        linkedSet = allExternalSets_dict[linkedSetName]
+        self.handleCallback(sender, linkedSet)
+
+    def checkBoxCallback_internal(self, sender):
+        # Get linked set of checkbox
+        linkedSet = checkboxSetLink_dict[sender]
+        self.handleCallback(sender, linkedSet)
+
+        
+
+
 # Run Set Organizer
 
-allSmartSets = createAllSetDataFromFiles()
-generateSmartSets(allSmartSets)        
+loadExternalSets()     
 setOrganizer()
