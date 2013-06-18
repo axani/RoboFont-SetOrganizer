@@ -1,0 +1,4 @@
+{
+"smartSetName": "Mathematical",
+"query": "Name IN {'plus', 'minus', 'multiply', 'divide', 'equal', 'less', 'greater', 'plusminus', 'lessequal', 'greaterequal', 'notequal', 'logicalnot', 'asciitilde', 'approxequal', 'infinity', 'numbersign', 'radical', 'lozenge', 'Delta', 'Omega', 'summation', 'partialdiff', 'integral', 'product', 'pi', 'mu'}"
+}

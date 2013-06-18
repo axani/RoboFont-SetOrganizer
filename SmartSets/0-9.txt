@@ -1,0 +1,4 @@
+{
+"smartSetName": "0-9",
+"query": "Name IN ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']"
+}

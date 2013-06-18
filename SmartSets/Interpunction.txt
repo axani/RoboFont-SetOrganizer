@@ -1,0 +1,4 @@
+{
+"smartSetName": "Interpunction",
+"query": "Name IN {'period', 'comma', 'colon', 'semicolon', 'exclam', 'question', 'exclamdown', 'questiondown', 'hyphen', 'endash', 'emdash', 'underscore', 'bar', 'brokenbar', 'dagger', 'daggerdbl', 'parenleft', 'parenright', 'bracketleft', 'bracketright', 'braceleft', 'braceright', 'slash', 'backslash', 'quotesinglbase', 'quotedblbase', 'quoteleft', 'quotedblleft', 'quoteright', 'quotedblright', 'guilsinglleft', 'guilsinglright', 'guillemotleft', 'guillemotright', 'quotesingle', 'quotedbl', 'asterisk', 'degree', 'bullet', 'periodcentered', 'ellipsis', 'paragraph', 'ampersand', 'section'}"
+}

@@ -1,0 +1,4 @@
+{
+"smartSetName": "Valuta",
+"query": "Name IN {'sterling', 'currency', 'dollar', 'cent', 'yen', 'Euro', 'florin'}"
+}

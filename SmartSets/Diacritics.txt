@@ -1,0 +1,4 @@
+{
+"smartSetName": "Diacritics",
+"query": "Name IN {'grave', 'acute', 'hungarumlaut', 'dotaccent', 'dieresis', 'circumflex', 'caron', 'macron', 'tilde', 'breve', 'ring', 'caronquoteleft', 'caronquoteright', 'commaaccent', 'cedilla', 'ogonek'}"
+}
