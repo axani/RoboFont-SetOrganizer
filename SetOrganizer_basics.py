@@ -108,16 +108,31 @@ class setOrganizer():
 
 
         # Create window
-        self.w = Window((400,400), 'Active/Deactivate your SmartSets')
-        
+        self.w = Window((150,400), 'Active/Deactivate your SmartSets')
 
-        # Create checkboxes
+        # ! - This part needs a clean up!
         currentRow = 0
+        self.w.caption_externalSets = TextBox((10, 10 + currentRow, 0, 0), 'External SmartSets')
+
         for item in allExternalSets_dict:
             currentRow = self.createCheckbox(item, allExternalSets_dict, currentRow)
-       
+        
+        numberOfRows = currentRow
+        self.w.box_externalSets = Box((10, 30, -10, 15+25*numberOfRows))
+        
+        setsInFirstPart = numberOfRows
+        currentRow = numberOfRows + 2
+        beginNextPart = 25*numberOfRows
+        numberOfRows = 1
+        self.w.caption_internalSets = TextBox((10, 62+beginNextPart, 0, 0), 'Internal SmartSets')
+        
         for item in activeSetsNow:
             currentRow = self.createCheckbox(item, activeSetsNow, currentRow)
+
+        numberOfRows = currentRow - setsInFirstPart -2
+        
+        print numberOfRows
+        self.w.box_internalSets = Box((10, 82+beginNextPart, -10, 12+25*numberOfRows))
 
         # Open window
         self.w.open()
@@ -159,7 +174,7 @@ class setOrganizer():
             permissionToBuild = True
         
         if permissionToBuild:
-            checkboxObject = CheckBox((10, 10+30*row, -10, -10), " %s" % set.name, callback=callbackDestination, value = checkBoxValue)
+            checkboxObject = CheckBox((20, 40+25*row, -10, -10), " %s" % set.name, callback=callbackDestination, value = checkBoxValue)
             setattr(self.w, setID, checkboxObject)
         
             # Link checkbox with Set
