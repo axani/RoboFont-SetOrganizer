@@ -131,7 +131,6 @@ class setOrganizer():
 
         numberOfRows = currentRow - setsInFirstPart -2
         
-        print numberOfRows
         self.w.box_internalSets = Box((10, 82+beginNextPart, -10, 12+25*numberOfRows))
 
         # Open window
