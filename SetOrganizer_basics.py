@@ -80,7 +80,7 @@ def saveThisSet(set):
     
     nameString = '"smartSetName": "' + str(set.name) + '"'
     queryString = '"query": "' +  str(set.query).replace('"', "'") + '"'
-    dataString = '{\n' +  nameString + '\n' + queryString + '\n}'
+    dataString = '{\n' +  nameString + ',\n' + queryString + '\n}'
 
     file.write(dataString)
     file.close()

@@ -23,7 +23,7 @@ def backupSetData(set):
     
     nameString = '"smartSetName": "' + str(set.name) + '"'
     queryString = '"query": "' +  str(set.query) + '"'
-    dataString = '{\n' +  nameString + '\n' + queryString + '\n}'
+    dataString = '{\n' +  nameString + ',\n' + queryString + '\n}'
 
     file.write(dataString)
     file.close()
